@@ -1,4 +1,4 @@
-package com.evg_kuznetsov.expert.model.user;
+package com.evg_kuznetsov.expert.model.entities;
 
 import com.evg_kuznetsov.expert.model.AbstractEntity;
 import lombok.AllArgsConstructor;
