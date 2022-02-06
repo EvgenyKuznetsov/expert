@@ -33,8 +33,4 @@ public class Role extends AbstractEntity<Long> {
     @ManyToMany(mappedBy = "roles")
     private List<User> users;
 
-    @Override
-    public Long getId() {
-        return null;
-    }
 }
