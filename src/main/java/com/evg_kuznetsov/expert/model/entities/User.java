@@ -13,7 +13,7 @@ import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.util.Collections;
+import java.util.List;
 
 import static java.util.Collections.checkedList;
 import static java.util.Collections.emptyList;
@@ -59,7 +59,14 @@ public class User extends AbstractEntity<Long> {
     @NotNull
     private boolean active;
 
+    @ManyToMany
+    @JoinTable(
+            name = "USERS_ROLES",
+            joinColumns = @JoinColumn(name = "USER_ID"),
+            inverseJoinColumns = @JoinColumn(name = "ROLE_ID")
+    )
     private List<Role> roles;
+
 
     private List<Order> orders;
 
@@ -75,12 +82,12 @@ public class User extends AbstractEntity<Long> {
         this.password = u.getPassword();
         this.phoneNumber = u.getPhoneNumber();
 
-        Collections<Role> uRoles = u.getRoles();
+        List<Role> uRoles = u.getRoles();
         if (CollectionUtils.isEmpty(uRoles)) {
             this.roles = emptyList();
         } else this.roles = checkedList(uRoles, Role.class);
 
-        Collections<Order> uOrders = u.getOrders();
+        List<Order> uOrders = u.getOrders();
         if (CollectionUtils.isEmpty(uOrders)) {
             this.orders = emptyList();
         } else this.orders = checkedList(uOrders, Order.class);
