@@ -15,8 +15,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
-import static java.util.Collections.checkedList;
-import static java.util.Collections.emptyList;
+import static java.util.Collections.*;
 
 @Entity(name = "user")
 @Table(name = "USER")
@@ -59,7 +58,7 @@ public class User extends AbstractEntity<Long> {
     @NotNull
     private boolean active;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "USERS_ROLES",
             joinColumns = @JoinColumn(name = "USER_ID"),
@@ -67,8 +66,8 @@ public class User extends AbstractEntity<Long> {
     )
     private List<Role> roles;
 
-
-    private List<Order> orders;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)
+    private List<Order> orders = new java.util.ArrayList<>();
 
     public User(User u) {
 
@@ -90,7 +89,6 @@ public class User extends AbstractEntity<Long> {
         List<Order> uOrders = u.getOrders();
         if (CollectionUtils.isEmpty(uOrders)) {
             this.orders = emptyList();
-        } else this.orders = checkedList(uOrders, Order.class);
-
+        } else copy(emptyList(), uOrders);
     }
 }
