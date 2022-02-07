@@ -69,4 +69,15 @@ public class Order extends AbstractEntity<Long> {
     @ManyToOne
     @JoinColumn(name = "USER_ID")
     private User user;
+
+    @Override
+    public void prePersist() {
+        this.setPersistDate();
+        super.prePersist();
+    }
+
+    @Override
+    public void preUpdate() {
+        this.setLastUpdateDate();
+    }
 }
