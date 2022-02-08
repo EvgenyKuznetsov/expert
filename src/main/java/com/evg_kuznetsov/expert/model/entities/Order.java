@@ -38,6 +38,10 @@ public class Order extends AbstractEntity<Long> {
     private LocalDateTime completionDate;
 
     @Setter(AccessLevel.NONE)
+    @Column(name = "PERSIST_TIME")
+    private LocalDateTime persistTime;
+
+    @Setter(AccessLevel.NONE)
     @Column(name = "LAST_UPDATE")
     private LocalDateTime lastUpdate;
 
@@ -72,12 +76,12 @@ public class Order extends AbstractEntity<Long> {
 
     @Override
     public void prePersist() {
-        this.setPersistDate();
+        this.persistTime = LocalDateTime.now();
         super.prePersist();
     }
 
     @Override
     public void preUpdate() {
-        this.setLastUpdateDate();
+        this.lastUpdate = LocalDateTime.now();
     }
 }
