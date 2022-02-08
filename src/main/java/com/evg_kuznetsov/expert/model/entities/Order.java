@@ -9,6 +9,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity(name = "Order")
 @Table(name = "ORDERS")
@@ -45,8 +46,15 @@ public class Order extends AbstractEntity<Long> {
     @Column(name = "LAST_UPDATE")
     private LocalDateTime lastUpdate;
 
-    private String typeInsurance;
+    @ManyToOne
+    @JoinColumn(name = "type_insurance_id")
+    private Insurance typeInsurance;
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "orders_services",
+            joinColumns = @JoinColumn(name = "order_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "service_id", referencedColumnName = "id")
+    )
     private List<Service> services;
 
     @Column(name = "ADDRESS")
