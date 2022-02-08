@@ -9,6 +9,7 @@ import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import java.math.BigDecimal;
 import java.util.List;
 
 @Entity(name = "service")
@@ -17,7 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Service extends AbstractEntity {
+public class Service extends AbstractEntity<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequence_generator")
@@ -33,5 +34,6 @@ public class Service extends AbstractEntity {
     @ManyToMany(mappedBy = "services")
     private List<Order> orders;
 
-
+    @Column(name = "price", scale = 2, precision = 20, columnDefinition = "numeric default 0")
+    private BigDecimal price;
 }
