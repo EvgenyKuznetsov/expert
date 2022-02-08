@@ -30,7 +30,7 @@ public class Insurance extends AbstractEntity {
     @Length(max = 10)
     private String insuranceType;
 
-    @OneToMany(mappedBy = "typeInsurance", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "typeInsurance")
     private List<Order> orders;
 
 }
