@@ -11,7 +11,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.util.List;
 
-@Entity(name = "Insurance")
+@Entity(name = "insurance")
 @Table(name = "insurance")
 @NoArgsConstructor
 @AllArgsConstructor

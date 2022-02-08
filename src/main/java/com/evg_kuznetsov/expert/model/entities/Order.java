@@ -11,8 +11,8 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Entity(name = "Order")
-@Table(name = "ORDERS")
+@Entity(name = "order")
+@Table(name = "orders")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -22,28 +22,28 @@ public class Order extends AbstractEntity<Long> {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "order_seq_generator")
     @SequenceGenerator(name = "order_seq_generator", sequenceName = "order_seq", initialValue = 1000, allocationSize = 1)
-    @Column(name = "ID", nullable = false)
+    @Column(name = "id", nullable = false)
     private Long id;
 
 
-    @Column(name = "NUM_INCIDENT")
+    @Column(name = "num_incident")
     @NotNull
     @Min(10000000)
     private Integer numberIncident;
 
-    @Column(name = "NUM_ORDER", columnDefinition = "integer default 0")
+    @Column(name = "num_order", columnDefinition = "integer default 0")
     private Integer numberOrder;
 
-    @Column(name = "COMPLETION_DATE")
+    @Column(name = "completion_date")
     @NotNull
     private LocalDateTime completionDate;
 
     @Setter(AccessLevel.NONE)
-    @Column(name = "PERSIST_TIME")
+    @Column(name = "persist_time")
     private LocalDateTime persistTime;
 
     @Setter(AccessLevel.NONE)
-    @Column(name = "LAST_UPDATE")
+    @Column(name = "last_update")
     private LocalDateTime lastUpdate;
 
     @ManyToOne
@@ -57,29 +57,29 @@ public class Order extends AbstractEntity<Long> {
     )
     private List<Service> services;
 
-    @Column(name = "ADDRESS")
+    @Column(name = "address")
     @NotBlank
     @Length(min = 5, max = 255)
     private String address;
 
-    @Column(name = "PROPERTY")
+    @Column(name = "property")
     @NotBlank
     @Length(min = 5, max = 255)
     private String property;
 
-    @Column(name = "DESC_PROPERTY")
+    @Column(name = "desc_property")
     private String descProperty;
 
-    @Column(name = "OWNER")
+    @Column(name = "owner")
     @NotBlank
     @Length(min = 5, max = 255)
     private String owner;
 
-    @Column(name = "DESCRIPTION", length = 1000)
+    @Column(name = "description", length = 1000)
     private String description;
 
     @ManyToOne
-    @JoinColumn(name = "USER_ID")
+    @JoinColumn(name = "user_id")
     private User user;
 
     @Override

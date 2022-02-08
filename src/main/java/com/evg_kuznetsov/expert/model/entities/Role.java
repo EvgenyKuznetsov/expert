@@ -11,8 +11,8 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.util.List;
 
-@Entity(name = "Role")
-@Table(name = "ROLE")
+@Entity(name = "role")
+@Table(name = "role")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -22,10 +22,10 @@ public class Role extends AbstractEntity<Long> {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequence_generator")
     @SequenceGenerator(name = "sequence_generator", sequenceName = "global_seq", allocationSize = 1)
-    @Column(name = "ID", nullable = false)
+    @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "ROLE", length = 50)
+    @Column(name = "role", length = 50)
     @NotBlank
     @Length(min = 3, max = 50)
     private String role;

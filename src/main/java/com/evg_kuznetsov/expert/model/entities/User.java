@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.validator.constraints.Length;
-import org.springframework.util.CollectionUtils;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -15,10 +14,8 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
-import static java.util.Collections.*;
-
 @Entity(name = "user")
-@Table(name = "USER")
+@Table(name = "user")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -31,64 +28,41 @@ public class User extends AbstractEntity<Long> {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "FULL_NAME")
+    @Column(name = "full_name")
     @NotBlank
     @Length(min = 3, max = 255)
     private String fullName;
 
     @NaturalId
-    @Column(name = "EMAIL", unique = true)
+    @Column(name = "email", unique = true)
     @NotBlank
     @Length(min = 5, max = 255)
     @Email
     private String email;
 
-    @Column(name = "PASSWORD")
+    @Column(name = "password")
     @NotBlank
     @Length(min = 5, max = 255)
     private String password;
 
     @NaturalId
-    @Column(name = "PHONE_NUMBER", unique = true)
+    @Column(name = "phone_number", unique = true)
     @NotBlank
     @Length(min = 10, max = 10)
     private String phoneNumber;
 
-    @Column(name = "ACTIVE", columnDefinition = "boolean default true")
+    @Column(name = "active", columnDefinition = "boolean default true")
     @NotNull
     private boolean active;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "USERS_ROLES",
-            joinColumns = @JoinColumn(name = "USER_ID", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "ROLE_ID", referencedColumnName = "id")
+            name = "users_roles",
+            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
     )
     private List<Role> roles;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<Order> orders = new java.util.ArrayList<>();
-
-    public User(User u) {
-
-        if (u == null) {
-            throw new IllegalArgumentException();
-        }
-
-        this.id = u.getId();
-        this.fullName = u.getFullName();
-        this.email = u.getEmail();
-        this.password = u.getPassword();
-        this.phoneNumber = u.getPhoneNumber();
-
-        List<Role> uRoles = u.getRoles();
-        if (CollectionUtils.isEmpty(uRoles)) {
-            this.roles = emptyList();
-        } else this.roles = checkedList(uRoles, Role.class);
-
-        List<Order> uOrders = u.getOrders();
-        if (CollectionUtils.isEmpty(uOrders)) {
-            this.orders = emptyList();
-        } else copy(emptyList(), uOrders);
-    }
 }
