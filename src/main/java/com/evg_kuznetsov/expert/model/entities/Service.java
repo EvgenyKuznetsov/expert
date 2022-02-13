@@ -9,8 +9,10 @@ import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 
 @Entity(name = "service")
 @Table(name = "service")
@@ -26,14 +28,49 @@ public class Service extends AbstractEntity<Long> {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "naming", length = 20)
+    @Column(name = "service", length = 20)
     @NotBlank
     @Length(min = 3, max = 20)
-    private String naming;
+    private String service;
 
     @ManyToMany(mappedBy = "services")
     private List<Order> orders;
 
     @Column(name = "price", scale = 2, precision = 20, columnDefinition = "numeric default 0")
     private BigDecimal price;
+
+    @Column(name = "active", columnDefinition = "boolean default true")
+    @NotNull
+    private boolean active;
+
+    public void addOrder(Order order) {
+        if (order == null) {
+            throw new IllegalArgumentException();
+        }
+        if (!this.orders.contains(order)) {
+            this.orders.add(order);
+        }
+    }
+
+    public void removeOrder(Order order) {
+        if (order == null) {
+            throw new IllegalArgumentException();
+        }
+        this.orders.remove(order);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Service service1 = (Service) o;
+
+        return service.equals(service1.service);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.service);
+    }
 }

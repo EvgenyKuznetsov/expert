@@ -1,18 +1,18 @@
 package com.evg_kuznetsov.expert.model.entities;
 
 import com.evg_kuznetsov.expert.model.AbstractEntity;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import java.util.List;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 
 @Entity(name = "role")
-@Table(name = "role")
+@Table()
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -30,7 +30,39 @@ public class Role extends AbstractEntity<Long> {
     @Length(min = 3, max = 50)
     private String role;
 
-    @ManyToMany(mappedBy = "roles")
-    private List<User> users;
 
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
+    @ManyToMany(mappedBy = "roles")
+    private Set<User> users = new HashSet<>();
+
+    public Set<User> getUsers() {
+        if (users.isEmpty()) {
+            return Set.of();
+        }
+        return Collections.unmodifiableSet(this.users);
+    }
+
+    public void addUser(User user) {
+        users.add(user);
+    }
+
+    public void removeUser(User user) {
+        users.remove(user);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Role role1 = (Role) o;
+
+        return role.equals(role1.role);
+    }
+
+    @Override
+    public int hashCode() {
+        return role.hashCode();
+    }
 }

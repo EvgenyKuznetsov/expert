@@ -5,11 +5,13 @@ import org.springframework.data.domain.Persistable;
 
 import javax.persistence.EntityListeners;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.Transient;
 
 @MappedSuperclass
 @EntityListeners(EntityListener.class)
 public abstract class AbstractEntity<ID> implements Persistable<ID> {
 
+    @Transient
     private boolean isNew = true;
 
     @Override
