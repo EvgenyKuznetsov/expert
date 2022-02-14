@@ -21,7 +21,7 @@ public class User extends AbstractEntity<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequence_generator")
-    @SequenceGenerator(name = "sequence_generator", sequenceName = "global_seq", initialValue = 1000, allocationSize = 1)
+    @SequenceGenerator(name = "sequence_generator", sequenceName = "global_seq", allocationSize = 1)
     @Column(name = "id", nullable = false)
     private Long id;
 

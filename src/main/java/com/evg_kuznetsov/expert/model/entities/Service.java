@@ -24,7 +24,7 @@ public class Service extends AbstractEntity<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequence_generator")
-    @SequenceGenerator(name = "sequence_generator", sequenceName = "global_seq")
+    @SequenceGenerator(name = "sequence_generator", sequenceName = "global_seq", allocationSize = 1)
     @Column(name = "id", nullable = false)
     private Long id;
 
