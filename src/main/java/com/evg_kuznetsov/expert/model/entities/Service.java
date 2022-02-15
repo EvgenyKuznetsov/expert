@@ -28,9 +28,9 @@ public class Service extends AbstractEntity<Long> {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "service", length = 20)
+    @Column(name = "service", length = 50)
     @NotBlank
-    @Length(min = 3, max = 20)
+    @Length(min = 3, max = 50)
     private String service;
 
     @ManyToMany(mappedBy = "services")
