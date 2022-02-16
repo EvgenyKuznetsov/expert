@@ -13,9 +13,10 @@ spring:
     hibernate:
       ddl-auto: create-drop
     database-platform: org.hibernate.dialect.H2Dialect
+    defer-datasource-initialization: true
 
 #logger
 logging:
-  config: classpath:\resources\logback-dev.xml
+  config: src\main\resources\logback-dev.xml
 
 
