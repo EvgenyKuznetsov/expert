@@ -1,45 +1,47 @@
-package com.evg_kuznetsov.expert.model.entities;
+package com.evgKuznetsov.expert.model.entities;
 
-import com.evg_kuznetsov.expert.model.AbstractEntity;
-import lombok.*;
+import com.evgKuznetsov.expert.model.AbstractEntity;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import java.util.ArrayList;
-import java.util.Collections;
+import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 
-@Entity(name = "insurance")
-@Table(name = "insurance")
+@Entity(name = "service")
+@Table(name = "service")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class Insurance extends AbstractEntity<Long> {
+public class Service extends AbstractEntity<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequence_generator")
     @SequenceGenerator(name = "sequence_generator", sequenceName = "global_seq", allocationSize = 1)
-    @Column(name = "id")
+    @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "insurance_type", unique = true, length = 10)
+    @Column(name = "service", length = 50)
     @NotBlank
-    @Length(max = 10)
-    private String insuranceType;
+    @Length(min = 3, max = 50)
+    private String service;
 
-    @Getter(AccessLevel.NONE)
-    @Setter(AccessLevel.NONE)
-    @OneToMany(mappedBy = "typeInsurance")
-    private List<Order> orders = new ArrayList<>();
+    @ManyToMany(mappedBy = "services")
+    private List<Order> orders;
 
-    public List<Order> getOrders() {
-        if (this.orders.isEmpty()) {
-            return List.of();
-        }
-        return Collections.unmodifiableList(this.orders);
-    }
+    @Column(name = "price", scale = 2, precision = 20, columnDefinition = "numeric default 0")
+    private BigDecimal price;
+
+    @Column(name = "active", columnDefinition = "boolean default true")
+    @NotNull
+    private boolean active;
 
     public void addOrder(Order order) {
         if (order == null) {
@@ -62,13 +64,13 @@ public class Insurance extends AbstractEntity<Long> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Insurance insurance = (Insurance) o;
+        Service service1 = (Service) o;
 
-        return insuranceType.equals(insurance.insuranceType);
+        return service.equals(service1.service);
     }
 
     @Override
     public int hashCode() {
-        return insuranceType.hashCode();
+        return Objects.hashCode(this.service);
     }
 }

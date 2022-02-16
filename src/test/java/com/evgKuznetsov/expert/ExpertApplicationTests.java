@@ -1,4 +1,4 @@
-package com.evg_kuznetsov.expert;
+package com.evgKuznetsov.expert;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

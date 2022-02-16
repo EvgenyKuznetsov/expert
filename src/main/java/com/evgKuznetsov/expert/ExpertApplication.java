@@ -1,4 +1,4 @@
-package com.evg_kuznetsov.expert;
+package com.evgKuznetsov.expert;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

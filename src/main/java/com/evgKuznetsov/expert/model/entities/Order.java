@@ -1,6 +1,6 @@
-package com.evg_kuznetsov.expert.model.entities;
+package com.evgKuznetsov.expert.model.entities;
 
-import com.evg_kuznetsov.expert.model.AbstractEntity;
+import com.evgKuznetsov.expert.model.AbstractEntity;
 import lombok.*;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.validator.constraints.Length;

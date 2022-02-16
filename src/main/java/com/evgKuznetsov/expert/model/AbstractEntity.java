@@ -1,6 +1,6 @@
-package com.evg_kuznetsov.expert.model;
+package com.evgKuznetsov.expert.model;
 
-import com.evg_kuznetsov.expert.model.entities.EntityListener;
+import com.evgKuznetsov.expert.model.entities.EntityListener;
 import org.springframework.data.domain.Persistable;
 
 import javax.persistence.EntityListeners;

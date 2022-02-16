@@ -1,47 +1,45 @@
-package com.evg_kuznetsov.expert.model.entities;
+package com.evgKuznetsov.expert.model.entities;
 
-import com.evg_kuznetsov.expert.model.AbstractEntity;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.evgKuznetsov.expert.model.AbstractEntity;
+import lombok.*;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
-@Entity(name = "service")
-@Table(name = "service")
+@Entity(name = "insurance")
+@Table(name = "insurance")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class Service extends AbstractEntity<Long> {
+public class Insurance extends AbstractEntity<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequence_generator")
     @SequenceGenerator(name = "sequence_generator", sequenceName = "global_seq", allocationSize = 1)
-    @Column(name = "id", nullable = false)
+    @Column(name = "id")
     private Long id;
 
-    @Column(name = "service", length = 50)
+    @Column(name = "insurance_type", unique = true, length = 10)
     @NotBlank
-    @Length(min = 3, max = 50)
-    private String service;
+    @Length(max = 10)
+    private String insuranceType;
 
-    @ManyToMany(mappedBy = "services")
-    private List<Order> orders;
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
+    @OneToMany(mappedBy = "typeInsurance")
+    private List<Order> orders = new ArrayList<>();
 
-    @Column(name = "price", scale = 2, precision = 20, columnDefinition = "numeric default 0")
-    private BigDecimal price;
-
-    @Column(name = "active", columnDefinition = "boolean default true")
-    @NotNull
-    private boolean active;
+    public List<Order> getOrders() {
+        if (this.orders.isEmpty()) {
+            return List.of();
+        }
+        return Collections.unmodifiableList(this.orders);
+    }
 
     public void addOrder(Order order) {
         if (order == null) {
@@ -64,13 +62,13 @@ public class Service extends AbstractEntity<Long> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Service service1 = (Service) o;
+        Insurance insurance = (Insurance) o;
 
-        return service.equals(service1.service);
+        return insuranceType.equals(insurance.insuranceType);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(this.service);
+        return insuranceType.hashCode();
     }
 }
