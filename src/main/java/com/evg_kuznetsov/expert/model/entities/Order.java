@@ -91,7 +91,7 @@ public class Order extends AbstractEntity<Long> {
 
     public void setTypeInsurance(Insurance typeInsurance) {
         if (typeInsurance == null) {
-            typeInsurance.removeOrder(this);
+            throw new IllegalArgumentException();
         }
         typeInsurance.addOrder(this);
         this.typeInsurance = typeInsurance;
