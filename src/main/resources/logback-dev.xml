@@ -7,10 +7,10 @@
         </encoder>
     </appender>
 
-    <logger name="com.evg_kuznetsov.expert" level="INFO" additivity="false">
+    <logger name="com.evgKuznetsov.expert" level="DEBUG" additivity="false">
         <appender-ref ref="STDOUT"/>
     </logger>
-    <root level="DEBUG">
+    <root level="ERROR">
         <appender-ref ref="STDOUT"/>
     </root>
 
