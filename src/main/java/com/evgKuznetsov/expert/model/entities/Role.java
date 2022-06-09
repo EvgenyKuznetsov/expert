@@ -5,7 +5,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import java.util.Collections;
 import java.util.HashSet;
@@ -18,13 +21,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Role extends AbstractEntity<Long> {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequence_generator")
-    @SequenceGenerator(name = "sequence_generator", sequenceName = "global_seq", allocationSize = 1)
-    @Column(name = "id", nullable = false)
-    private Long id;
+public class Role extends AbstractEntity {
 
     @Column(name = "role", length = 50)
     @NotBlank

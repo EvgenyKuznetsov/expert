@@ -19,14 +19,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Order extends AbstractEntity<Long> {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "order_seq_generator")
-    @SequenceGenerator(name = "order_seq_generator", sequenceName = "order_seq", allocationSize = 1)
-    @Column(name = "id", nullable = false)
-    private Long id;
-
+public class Order extends AbstractEntity {
 
     @Column(name = "num_incident")
     @NotNull
@@ -113,13 +106,12 @@ public class Order extends AbstractEntity<Long> {
         service.removeOrder(this);
     }
 
-    @Override
+    @PrePersist
     public void prePersist() {
         this.persistTime = LocalDateTime.now();
-        super.prePersist();
     }
 
-    @Override
+    @PreUpdate
     public void preUpdate() {
         this.lastUpdate = LocalDateTime.now();
     }

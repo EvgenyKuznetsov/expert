@@ -8,7 +8,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
@@ -21,13 +24,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Service extends AbstractEntity<Long> {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequence_generator")
-    @SequenceGenerator(name = "sequence_generator", sequenceName = "global_seq", allocationSize = 1)
-    @Column(name = "id", nullable = false)
-    private Long id;
+public class Service extends AbstractEntity {
 
     @Column(name = "service", length = 50)
     @NotBlank

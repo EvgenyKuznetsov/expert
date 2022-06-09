@@ -1,37 +1,24 @@
 package com.evgKuznetsov.expert.model;
 
-import com.evgKuznetsov.expert.model.entities.EntityListener;
+import lombok.Getter;
 import org.springframework.data.domain.Persistable;
 
-import javax.persistence.EntityListeners;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.Transient;
+import javax.persistence.*;
+
 
 @MappedSuperclass
-@EntityListeners(EntityListener.class)
-public abstract class AbstractEntity<ID> implements Persistable<ID> {
+@Access(AccessType.FIELD)
+public abstract class AbstractEntity implements Persistable<Long> {
 
-    @Transient
-    private boolean isNew = true;
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequence_generator")
+    @SequenceGenerator(name = "sequence_generator", sequenceName = "global_seq", allocationSize = 1)
+    @Column(name = "id")
+    @Getter
+    private Long id;
 
     @Override
     public boolean isNew() {
-        return isNew;
-    }
-
-    public void prePersist() {
-        this.markNowNew();
-    }
-
-    public void postLoad() {
-        this.markNowNew();
-    }
-
-    private void markNowNew() {
-        this.isNew = false;
-    }
-
-    public void preUpdate() {
-        //default behavior
+        return id == null;
     }
 }

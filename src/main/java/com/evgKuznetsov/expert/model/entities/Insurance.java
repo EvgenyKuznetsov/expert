@@ -4,7 +4,10 @@ import com.evgKuznetsov.expert.model.AbstractEntity;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,13 +19,7 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Insurance extends AbstractEntity<Long> {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequence_generator")
-    @SequenceGenerator(name = "sequence_generator", sequenceName = "global_seq", allocationSize = 1)
-    @Column(name = "id")
-    private Long id;
+public class Insurance extends AbstractEntity {
 
     @Column(name = "insurance_type", unique = true, length = 10)
     @NotBlank

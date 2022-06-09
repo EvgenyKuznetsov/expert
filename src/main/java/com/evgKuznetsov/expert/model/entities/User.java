@@ -18,13 +18,7 @@ import java.util.*;
 @AllArgsConstructor
 @Getter
 @Setter
-public class User extends AbstractEntity<Long> {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequence_generator")
-    @SequenceGenerator(name = "sequence_generator", sequenceName = "global_seq", allocationSize = 1)
-    @Column(name = "id", nullable = false)
-    private Long id;
+public class User extends AbstractEntity {
 
     @Column(name = "full_name")
     @NotBlank
