@@ -14,7 +14,7 @@ import java.util.Optional;
 @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    @Query("SELECT usr FROM user usr LEFT JOIN FETCH usr.roles")
+    @Query("SELECT DISTINCT usr FROM user usr LEFT JOIN FETCH usr.roles")
     List<User> findAll();
 
     Optional<User> getByPhoneNumber(String phone);
