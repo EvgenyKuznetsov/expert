@@ -1,6 +1,7 @@
 package com.evgKuznetsov.expert.model.entities;
 
 import com.evgKuznetsov.expert.model.AbstractEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,6 +35,7 @@ public class Service extends AbstractEntity<Long> {
     private String service;
 
     @ManyToMany(mappedBy = "services")
+    @JsonIgnore // TODO: 16.02.2022 there is a stack overflow ex
     private List<Order> orders;
 
     @Column(name = "price", scale = 2, precision = 20, columnDefinition = "numeric default 0")

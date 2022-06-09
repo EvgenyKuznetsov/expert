@@ -1,6 +1,7 @@
 package com.evgKuznetsov.expert.model.entities;
 
 import com.evgKuznetsov.expert.model.AbstractEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.validator.constraints.Length;
@@ -40,6 +41,7 @@ public class User extends AbstractEntity<Long> {
     @Column(name = "password")
     @NotBlank
     @Length(min = 5, max = 255)
+    @JsonIgnore
     private String password;
 
     @NaturalId
@@ -54,7 +56,7 @@ public class User extends AbstractEntity<Long> {
 
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
-    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
@@ -66,8 +68,8 @@ public class User extends AbstractEntity<Long> {
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
     @OneToMany(mappedBy = "user",
-            cascade = {CascadeType.PERSIST, CascadeType.MERGE},
             orphanRemoval = true)
+    @JsonIgnore // TODO: 16.02.2022 there's a stack overflow ex
     private List<Order> orders = new ArrayList<>();
 
     public Set<Role> getRoles() {

@@ -1,6 +1,7 @@
 package com.evgKuznetsov.expert.model.entities;
 
 import com.evgKuznetsov.expert.model.AbstractEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.validator.constraints.Length;
 
@@ -34,6 +35,7 @@ public class Role extends AbstractEntity<Long> {
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
     @ManyToMany(mappedBy = "roles")
+    @JsonIgnore // TODO: 16.02.2022 there's a stack overflow ex
     private Set<User> users = new HashSet<>();
 
     public Set<User> getUsers() {
