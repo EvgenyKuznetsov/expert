@@ -10,7 +10,6 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,27 +27,10 @@ public class Role extends AbstractEntity {
     @Length(min = 3, max = 50)
     private String role;
 
-
-    @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
     @ManyToMany(mappedBy = "roles")
     @JsonIgnore // TODO: 16.02.2022 there's a stack overflow ex
     private Set<User> users = new HashSet<>();
-
-    public Set<User> getUsers() {
-        if (users.isEmpty()) {
-            return Set.of();
-        }
-        return Collections.unmodifiableSet(this.users);
-    }
-
-    public void addUser(User user) {
-        users.add(user);
-    }
-
-    public void removeUser(User user) {
-        users.remove(user);
-    }
 
     @Override
     public boolean equals(Object o) {

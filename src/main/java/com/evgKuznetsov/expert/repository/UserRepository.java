@@ -21,8 +21,4 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> getByEmail(String email);
 
-    @Override
-    User save(User user);
-
-
 }

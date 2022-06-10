@@ -2,8 +2,8 @@ package com.evgKuznetsov.expert.model.entities;
 
 import com.evgKuznetsov.expert.model.AbstractEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import org.hibernate.annotations.NaturalId;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
@@ -25,7 +25,6 @@ public class User extends AbstractEntity {
     @Length(min = 3, max = 255)
     private String fullName;
 
-    @NaturalId
     @Column(name = "email", unique = true)
     @NotBlank
     @Length(min = 5, max = 255)
@@ -35,10 +34,9 @@ public class User extends AbstractEntity {
     @Column(name = "password")
     @NotBlank
     @Length(min = 5, max = 255)
-    @JsonIgnore
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
-    @NaturalId
     @Column(name = "phone_number", unique = true)
     @NotBlank
     @Length(min = 10, max = 10)
@@ -50,7 +48,7 @@ public class User extends AbstractEntity {
 
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinTable(
             name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
@@ -62,6 +60,7 @@ public class User extends AbstractEntity {
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
     @OneToMany(mappedBy = "user",
+            cascade = CascadeType.ALL,
             orphanRemoval = true)
     @JsonIgnore // TODO: 16.02.2022 there's a stack overflow ex
     private List<Order> orders = new ArrayList<>();
@@ -78,7 +77,7 @@ public class User extends AbstractEntity {
             throw new IllegalArgumentException();
         }
         this.roles.add(role);
-        role.addUser(this);
+        role.getUsers().add(this);
     }
 
     public void removeRole(Role role) {
@@ -86,7 +85,7 @@ public class User extends AbstractEntity {
             throw new IllegalArgumentException();
         }
         if (this.roles.remove(role)) {
-            role.removeUser(this);
+            role.getUsers().remove(this);
         }
     }
 
