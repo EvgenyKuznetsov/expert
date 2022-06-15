@@ -2,8 +2,12 @@ package com.evgKuznetsov.expert.model.entities;
 
 import com.evgKuznetsov.expert.model.AbstractEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -17,10 +21,14 @@ import java.util.Set;
 @Entity(name = "role")
 @Table()
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
 public class Role extends AbstractEntity {
+
+    public Role(@Nullable Long id, String role) {
+        setId(id);
+        this.role = role;
+    }
 
     @Column(name = "role", length = 50)
     @NotBlank

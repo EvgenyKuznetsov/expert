@@ -19,6 +19,10 @@ public abstract class AbstractEntity implements Persistable<Long> {
     @Column(name = "id")
     private Long id;
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     @Override
     public boolean isNew() {
         return id == null;

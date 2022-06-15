@@ -2,9 +2,12 @@ package com.evgKuznetsov.expert.model.entities;
 
 import com.evgKuznetsov.expert.model.AbstractEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
+import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -15,7 +18,6 @@ import java.util.*;
 @Entity(name = "user")
 @Table(name = "user")
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
 public class User extends AbstractEntity {
@@ -34,7 +36,6 @@ public class User extends AbstractEntity {
     @Column(name = "password")
     @NotBlank
     @Length(min = 5, max = 255)
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
     @Column(name = "phone_number", unique = true)
@@ -56,7 +57,6 @@ public class User extends AbstractEntity {
     )
     private Set<Role> roles = new HashSet<>();
 
-
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
     @OneToMany(mappedBy = "user",
@@ -64,6 +64,16 @@ public class User extends AbstractEntity {
             orphanRemoval = true)
     @JsonIgnore // TODO: 16.02.2022 there's a stack overflow ex
     private List<Order> orders = new ArrayList<>();
+
+    public User(@Nullable Long id, String fullName, String email, String password, String phoneNumber, boolean active, Set<Role> roles) {
+        setId(id);
+        this.fullName = fullName;
+        this.email = email;
+        this.password = password;
+        this.phoneNumber = phoneNumber;
+        this.active = active;
+        this.roles = roles;
+    }
 
     public Set<Role> getRoles() {
         if (this.roles.isEmpty()) {
@@ -127,5 +137,14 @@ public class User extends AbstractEntity {
     @Override
     public int hashCode() {
         return Objects.hashCode(this.email);
+    }
+
+    @Override
+    public String toString() {
+        return "[id: " + this.getId()
+                + ", fullName: " + this.fullName
+                + ", email: " + this.email
+                + ", phoneNumber: " + this.phoneNumber
+                + ", active: " + this.active + "]";
     }
 }

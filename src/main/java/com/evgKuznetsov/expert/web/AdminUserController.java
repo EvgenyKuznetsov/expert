@@ -1,7 +1,6 @@
 package com.evgKuznetsov.expert.web;
 
 import com.evgKuznetsov.expert.model.dto.UserTransferObject;
-import com.evgKuznetsov.expert.model.entities.Role;
 import com.evgKuznetsov.expert.model.entities.User;
 import com.evgKuznetsov.expert.repository.RoleRepository;
 import com.evgKuznetsov.expert.repository.UserRepository;
@@ -9,23 +8,34 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.transaction.Transactional;
+import java.net.URI;
 import java.util.List;
 
+import static com.evgKuznetsov.expert.utils.DataTransferObjectFactory.mergeEntity;
+import static com.evgKuznetsov.expert.utils.DataTransferObjectFactory.transformToUTO;
+
 @RestController
+@RequestMapping(value = AdminUserController.URL, produces = MediaType.APPLICATION_JSON_VALUE)
 @AllArgsConstructor
-@RequestMapping(value = "/admin/user", produces = MediaType.APPLICATION_JSON_VALUE)
 @Slf4j
 public class AdminUserController {
+
+    public static final String URL = "/admin/user";
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
 
     @GetMapping(value = "/{id}")
-    public User getById(@PathVariable Long id) {
+    public UserTransferObject getById(@PathVariable Long id) {
         log.debug("getById with an id: {}", id);
-        return userRepository.findById(id).orElseThrow();
+
+        User requestedUser = userRepository.findById(id).orElseThrow();
+        return transformToUTO(requestedUser);
     }
 
     @GetMapping(value = "/get_by_phone_number")
@@ -37,43 +47,58 @@ public class AdminUserController {
     @GetMapping(value = "/get_by_email")
     public User getByEmail(@RequestParam(value = "email") String email) {
         log.debug("getByEmail with an email: {}", email);
+
         return userRepository.getByEmail(email).orElseThrow();
     }
 
     @GetMapping(value = "/get_all")
-    public List<User> getAll() {
+    public List<UserTransferObject> getAll() {
         log.debug("getAll");
-        return userRepository.findAll();
+
+        List<User> allUsers = userRepository.findAll();
+        return transformToUTO(allUsers);
     }
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Transactional
     public void updateUser(@RequestBody UserTransferObject userTo) {
         log.debug("updateUser with data: {}", userTo.toString());
-        Long id = userTo.getId();
-        User user = userRepository.findById(id).orElseThrow();
-        for (Role role : userTo.getRoles()) {
-            assert role.getId() != null;
-            if (!roleRepository.existsById(role.getId())) {
-                log.debug("updateUser: the passed role with id: {}, isn't exist", role.getId());
-                throw new IllegalArgumentException();
-            }
-            user.addRole(role);
+
+        if (verified(userTo)) {
+            User original = userRepository.getById(userTo.getId());
+            userRepository.save(mergeEntity(original, userTo));
         }
-        user.setFullName(userTo.getFullName());
-        user.setEmail(userTo.getEmail());
-        user.setPhoneNumber(userTo.getPhoneNumber());
-        user.setActive(userTo.isActive());
-        userRepository.save(user);
+    }
+
+    private boolean verified(UserTransferObject userTo) {
+        Long userId = userTo.getId();
+        if (userId == null) {
+            log.debug("verified: User id cannot be null: {}", userId);
+            return false;
+        }
+        return userTo.getRoles().stream()
+                .allMatch(role -> {
+                    Long roleId = role.getId();
+                    if (roleId == null) {
+                        log.debug("verified: Role id cannot be null: {}", roleId);
+                        return false;
+                    }
+                    return roleRepository.existsById(roleId);
+                });
     }
 
     @PostMapping(value = "/new", consumes = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void addNewUser(@RequestBody User user) {
+    public ResponseEntity<User> addNewUser(@RequestBody User user) {
         log.debug("addNewUser");
-        if (user.isNew()) {
-            userRepository.save(user);
+        if (!user.isNew()) {
+            throw new IllegalArgumentException("User must be new: [expected: User.id == null, actual: User.id == " + user.getId());
         }
+        User newOne = userRepository.save(user);
+        URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path(URL + "/{id}")
+                .buildAndExpand(newOne.getId()).toUri();
+        return ResponseEntity.created(uriOfNewResource).body(newOne);
     }
 
     @DeleteMapping(value = "/{id}")

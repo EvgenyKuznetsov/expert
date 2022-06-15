@@ -16,11 +16,11 @@ values (6, 'Осмотр ТС', 390, true),
        (11, 'Осмотр виновника', 390, true);
 
 insert into user (id, full_name, email, phone_number, password, active)
-values (1, 'Сергей Базаревич', 'bazar@mail.com', '9272369586', 'serzbazar', true),
-       (2, 'Василий Карасев', 'karas-vas@yandex.ru', '9273455125', '1234', true),
-       (3, 'Андрей Кириленко', 'kirya@ya.ru', '9379005623', 'qwerty', true),
-       (4, 'Тимофей Мозгов', 'tima_soccer@gmail.com', '9655263698', 'asdf', true),
-       (5, 'Алексей Швед', 'shved-sosed@vk.com', '9652368596', 'mypass', true);
+values (1, 'Михаил Лермонтов', 'lermontov@mail.com', '9272369586', 'lermontov', true),
+       (2, 'Александр Пушкин', 'pushkin@yandex.ru', '9273455125', 'pushkin', true),
+       (3, 'Лев Толстой', 'tolstoy@ya.ru', '9379005623', 'tolstoy', true),
+       (4, 'Сергей Есенин', 'esenin@gmail.com', '9655263698', 'esenin', true),
+       (5, 'Антон Чехов', 'chekhov@vk.com', '9652368596', 'chekhov', true);
 
 insert into users_roles(user_id, role_id)
 values (1, 1),
