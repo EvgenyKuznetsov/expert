@@ -2,6 +2,9 @@ package com.evgKuznetsov.expert.web;
 
 import com.evgKuznetsov.expert.model.dto.UserTransferObject;
 import com.evgKuznetsov.expert.model.entities.User;
+import com.evgKuznetsov.expert.model.validation.constraints.ValidEmail;
+import com.evgKuznetsov.expert.model.validation.constraints.ValidId;
+import com.evgKuznetsov.expert.model.validation.constraints.ValidPhoneNumber;
 import com.evgKuznetsov.expert.repository.RoleRepository;
 import com.evgKuznetsov.expert.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -9,10 +12,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.transaction.Transactional;
+import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 
@@ -23,6 +28,7 @@ import static com.evgKuznetsov.expert.utils.DataTransferObjectFactory.transformT
 @RequestMapping(value = AdminUserController.URL, produces = MediaType.APPLICATION_JSON_VALUE)
 @AllArgsConstructor
 @Slf4j
+@Validated
 public class AdminUserController {
 
     public static final String URL = "/admin/user";
@@ -31,7 +37,7 @@ public class AdminUserController {
     private final RoleRepository roleRepository;
 
     @GetMapping(value = "/{id}")
-    public UserTransferObject getById(@PathVariable Long id) {
+    public UserTransferObject getById(@PathVariable @ValidId Long id) {
         log.debug("getById with an id: {}", id);
 
         User requestedUser = userRepository.findById(id).orElseThrow();
@@ -39,13 +45,13 @@ public class AdminUserController {
     }
 
     @GetMapping(value = "/get_by_phone_number")
-    public User getByPhoneNumber(@RequestParam(value = "phone_number") String phone) {
+    public User getByPhoneNumber(@RequestParam(value = "phone_number") @ValidPhoneNumber String phone) {
         log.debug("getByPhoneNumber with a phone number: {}", phone);
         return userRepository.getByPhoneNumber(phone).orElseThrow();
     }
 
     @GetMapping(value = "/get_by_email")
-    public User getByEmail(@RequestParam(value = "email") String email) {
+    public User getByEmail(@RequestParam(value = "email") @ValidEmail String email) {
         log.debug("getByEmail with an email: {}", email);
 
         return userRepository.getByEmail(email).orElseThrow();
@@ -62,7 +68,7 @@ public class AdminUserController {
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Transactional
-    public void updateUser(@RequestBody UserTransferObject userTo) {
+    public void updateUser(@RequestBody @Valid UserTransferObject userTo) {
         log.debug("updateUser with data: {}", userTo.toString());
 
         if (verified(userTo)) {
@@ -89,7 +95,7 @@ public class AdminUserController {
     }
 
     @PostMapping(value = "/new", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<User> addNewUser(@RequestBody User user) {
+    public ResponseEntity<User> addNewUser(@RequestBody @Valid User user) {
         log.debug("addNewUser");
         if (!user.isNew()) {
             throw new IllegalArgumentException("User must be new: [expected: User.id == null, actual: User.id == " + user.getId());
@@ -102,7 +108,7 @@ public class AdminUserController {
     }
 
     @DeleteMapping(value = "/{id}")
-    public void deleteUser(@PathVariable Long id) {
+    public void deleteUser(@PathVariable @ValidId Long id) {
         log.debug("deleteUser with an id: {}", id);
         if (userRepository.existsById(id)) {
             userRepository.deleteById(id);

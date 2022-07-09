@@ -1,6 +1,9 @@
 package com.evgKuznetsov.expert.model.entities;
 
 import com.evgKuznetsov.expert.model.AbstractEntity;
+import com.evgKuznetsov.expert.model.validation.constraints.ValidEmail;
+import com.evgKuznetsov.expert.model.validation.constraints.ValidFullName;
+import com.evgKuznetsov.expert.model.validation.constraints.ValidPhoneNumber;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -10,7 +13,7 @@ import org.hibernate.validator.constraints.Length;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
-import javax.validation.constraints.Email;
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.*;
@@ -23,14 +26,11 @@ import java.util.*;
 public class User extends AbstractEntity {
 
     @Column(name = "full_name")
-    @NotBlank
-    @Length(min = 3, max = 255)
+    @ValidFullName
     private String fullName;
 
     @Column(name = "email", unique = true)
-    @NotBlank
-    @Length(min = 5, max = 255)
-    @Email
+    @ValidEmail
     private String email;
 
     @Column(name = "password")
@@ -39,8 +39,7 @@ public class User extends AbstractEntity {
     private String password;
 
     @Column(name = "phone_number", unique = true)
-    @NotBlank
-    @Length(min = 10, max = 10)
+    @ValidPhoneNumber
     private String phoneNumber;
 
     @Column(name = "active", columnDefinition = "boolean default true")
@@ -55,6 +54,7 @@ public class User extends AbstractEntity {
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
     )
+    @Valid
     private Set<Role> roles = new HashSet<>();
 
     @Getter(AccessLevel.NONE)
