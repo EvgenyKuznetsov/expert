@@ -10,7 +10,7 @@ import java.util.Set;
 @UtilityClass
 public class TestData {
     public static Long USER_ID = 1L;
-    public static String NEW_FULLNAME = "Charlie Jonson";
+    public static String NEW_FULLNAME = "Charlie Jonson-Swift jr.";
 
     public static Role EXPERT = new Role(1L, "expert");
 
@@ -18,7 +18,7 @@ public class TestData {
             "Михаил Лермонтов",
             "lermontov@mail.com",
             "lermontov",
-            "9272369586",
+            "7(927)236-95-86",
             true,
             Set.of(EXPERT));
 
@@ -45,7 +45,7 @@ public class TestData {
                 "Bob Dylan",
                 "Dylan@yahoo.com",
                 "dylan777",
-                "9373004715",
+                "7(937)300-47-15",
                 true,
                 Set.of(EXPERT));
     }
