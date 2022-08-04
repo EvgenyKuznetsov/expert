@@ -1,6 +1,5 @@
 package com.evgKuznetsov.expert.web.exceptionHandling;
 
-import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -12,27 +11,46 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 @RestControllerAdvice
 @Slf4j
-@AllArgsConstructor
 public class AppExceptionHandler extends ResponseEntityExceptionHandler {
 
-    private final ResponseBodyCreator responseBodyCreator;
-
     @ExceptionHandler({ConstraintViolationException.class})
-    protected ResponseEntity<Object> handleConstraintViolation(
-            ConstraintViolationException ex,
-            WebRequest wr) {
-        ResponseBody responseBody = responseBodyCreator.createResponseBody(ex);
-        return new ResponseEntity<>(responseBody, responseBody.getHttpStatus());
+    protected ResponseEntity<Object> handleConstraintViolation(ConstraintViolationException ex, WebRequest request) {
+        log.warn("{} is incorrect", request.getDescription(false));
+        ProblemInfo info = new ProblemInfo(HttpStatus.BAD_REQUEST, "INCORRECT REQUEST PARAMETERS");
+        for (ConstraintViolation<?> vio : ex.getConstraintViolations()) {
+            info.addDetail(vio.getPropertyPath() + " : " + vio.getMessage());
+        }
+        return new ResponseEntity<>(info, info.getHttpStatus());
     }
 
-    @ExceptionHandler({Exception.class})
-    protected ResponseEntity<Object> handleAll(Exception ex, WebRequest request) {
-        ResponseBody responseBody = responseBodyCreator.createResponseBody(ex);
-        return new ResponseEntity<Object>(responseBody, responseBody.getHttpStatus());
+    @ExceptionHandler({NoSuchElementException.class})
+    protected ResponseEntity<Object> handleNoSuchElement(NoSuchElementException ex, WebRequest request) {
+        ProblemInfo info = new ProblemInfo(HttpStatus.NOT_FOUND, "ENTITY NOT FOUND");
+        Map<String, String[]> param = request.getParameterMap();
+        if (param.isEmpty()) {
+            String path = request.getDescription(false);
+            log.warn("nothing here for the path: {}", path);
+            info.addDetail("path: " + path);
+        } else {
+            log.warn("entity not found for query parameters: {}", param);
+            StringBuilder builder = new StringBuilder();
+            param.forEach((key, value) -> {
+                builder.append(key + ": ");
+                for (String val : value) {
+                    builder.append(val);
+                }
+                info.addDetail(builder.toString());
+            });
+        }
+        return new ResponseEntity<Object>(info, info.getHttpStatus());
     }
 
     @Override
@@ -41,7 +59,20 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
                                                                   HttpHeaders headers,
                                                                   HttpStatus status,
                                                                   WebRequest request) {
-        ResponseBody responseBody = responseBodyCreator.createResponseBody(ex);
-        return new ResponseEntity<>(responseBody, responseBody.getHttpStatus());
+        log.warn(ex.getMessage());
+        ProblemInfo info = new ProblemInfo(HttpStatus.UNPROCESSABLE_ENTITY, "INCORRECT REQUEST BODY");
+        ex.getFieldErrors().stream()
+                .forEach(fe -> info.addDetail(fe.getField() + " : " + fe.getDefaultMessage()));
+
+        return new ResponseEntity<>(info, info.getHttpStatus());
+    }
+
+    @ExceptionHandler({Exception.class})
+    protected ResponseEntity<Object> handleAll(Exception ex, WebRequest request) {
+        log.warn("{} : doesn't have a handler to handle it", ex.getCause().toString());
+        ProblemInfo info = new ProblemInfo(HttpStatus.INTERNAL_SERVER_ERROR,
+                HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
+                List.of("There are not a handler"));
+        return new ResponseEntity<Object>(info, info.getHttpStatus());
     }
 }

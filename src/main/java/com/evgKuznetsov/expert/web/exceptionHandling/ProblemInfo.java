@@ -10,15 +10,18 @@ import java.util.List;
 @NoArgsConstructor
 @Setter
 @Getter
-public class ResponseBody {
+public class ProblemInfo {
+
     private HttpStatus httpStatus;
     private String title;
-
-    @Setter(AccessLevel.NONE)
     private List<String> details = new ArrayList<>();
 
-    public void addDetail(String detail) {
+    public void addDetail(@NonNull String detail) {
         details.add(detail);
     }
 
+    public ProblemInfo(HttpStatus httpStatus, String title) {
+        this.httpStatus = httpStatus;
+        this.title = title;
+    }
 }
