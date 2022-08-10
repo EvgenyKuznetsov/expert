@@ -1,9 +1,11 @@
-package com.evgKuznetsov.expert.model.validation.constraints;
+package com.evgKuznetsov.expert.validation.constraints;
+
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -11,14 +13,16 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-@NotNull
-@Pattern(regexp = "\\d{1,2}\\(\\d{3}\\)\\d{3}-\\d{2}-\\d{2}", message = "Значение не соответствует требуемому формату х(ххх)ххх-хх-хх")
+@NotNull(message = "{not_null}")
+@Email(message = "{email_format}")
+@Length(min = 5, max = 30, message = "{length}")
 @Constraint(validatedBy = {})
 @Target({CONSTRUCTOR, FIELD, METHOD, PARAMETER})
 @Retention(RUNTIME)
 @Documented
-public @interface ValidPhoneNumber {
-    String message() default "Значение не соответствует требуемому формату х(ххх)ххх-хх-хх";
+public @interface ValidEmail {
+
+    String message() default "{default}";
 
     Class<?>[] groups() default {};
 

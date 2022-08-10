@@ -1,6 +1,6 @@
 package com.evgKuznetsov.expert;
 
-import com.evgKuznetsov.expert.model.dto.UserTransferObject;
+import com.evgKuznetsov.expert.model.dto.UserTo;
 import com.evgKuznetsov.expert.model.entities.Role;
 import com.evgKuznetsov.expert.model.entities.User;
 import lombok.experimental.UtilityClass;
@@ -22,7 +22,7 @@ public class TestData {
             true,
             Set.of(EXPERT));
 
-    public static UserTransferObject USER_TO = UserTransferObject.builder()
+    public static UserTo USER_TO = UserTo.builder()
             .id(USER_ID)
             .fullName(USER.getFullName())
             .phoneNumber(USER.getPhoneNumber())
@@ -31,7 +31,7 @@ public class TestData {
             .roles(USER.getRoles())
             .build();
 
-    public static UserTransferObject CHANGED_USER = UserTransferObject.builder()
+    public static UserTo CHANGED_USER = UserTo.builder()
             .id(USER_ID)
             .fullName(NEW_FULLNAME)
             .phoneNumber(USER.getPhoneNumber())
@@ -48,5 +48,15 @@ public class TestData {
                 "7(937)300-47-15",
                 true,
                 Set.of(EXPERT));
+    }
+
+    public static String getSuperLongPhone() {
+        String[] email = USER.getEmail().split("@");
+        StringBuilder sb = new StringBuilder(email[0]);
+
+        sb.append("f".repeat(150));
+
+        sb.append("@").append(email[1]);
+        return sb.toString();
     }
 }

@@ -1,13 +1,10 @@
 package com.evgKuznetsov.expert.model.dto;
 
 import com.evgKuznetsov.expert.model.entities.Role;
-import com.evgKuznetsov.expert.model.validation.constraints.ValidEmail;
-import com.evgKuznetsov.expert.model.validation.constraints.ValidFullName;
-import com.evgKuznetsov.expert.model.validation.constraints.ValidId;
-import com.evgKuznetsov.expert.model.validation.constraints.ValidPhoneNumber;
+import com.evgKuznetsov.expert.repository.RoleRepository;
+import com.evgKuznetsov.expert.validation.constraints.*;
 import lombok.*;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.Set;
 
@@ -18,7 +15,7 @@ import java.util.Set;
 @ToString
 @Builder
 @NotNull
-public class UserTransferObject {
+public class UserTo {
 
     @ValidId
     private Long id;
@@ -35,7 +32,5 @@ public class UserTransferObject {
     @NotNull
     private boolean active;
 
-    @Valid
-    private Set<Role> roles;
-
+    private Set<@isExist(repository = RoleRepository.class) Role> roles;
 }

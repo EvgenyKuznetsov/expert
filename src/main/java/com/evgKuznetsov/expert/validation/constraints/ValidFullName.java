@@ -1,10 +1,10 @@
-package com.evgKuznetsov.expert.model.validation.constraints;
+package com.evgKuznetsov.expert.validation.constraints;
 
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -13,15 +13,15 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-@NotNull
-@NotEmpty
-@Length(min = 3, max = 50)
+@NotNull(message = "{not_null}")
+@NotBlank(message = "{not_blank}")
+@Length(min = 5, max = 255, message = "{length}")
 @Constraint(validatedBy = {})
 @Target({CONSTRUCTOR, METHOD, FIELD, PARAMETER})
 @Retention(RUNTIME)
 @Documented
-public @interface ValidRole {
-    String message() default "Имя роли не соответствует требованиям";
+public @interface ValidFullName {
+    String message() default "{default}";
 
     Class<?>[] groups() default {};
 

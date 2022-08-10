@@ -1,12 +1,9 @@
 package com.evgKuznetsov.expert.model.entities;
 
 import com.evgKuznetsov.expert.model.AbstractEntity;
-import com.evgKuznetsov.expert.model.validation.constraints.ValidRole;
+import com.evgKuznetsov.expert.validation.constraints.ValidRole;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.Column;
@@ -36,6 +33,14 @@ public class Role extends AbstractEntity {
     public Role(@Nullable Long id, String role) {
         setId(id);
         this.role = role;
+    }
+
+    public void removeUser(@NonNull User user) {
+        this.users.remove(user);
+    }
+
+    public void addUser(@NonNull User user) {
+        this.users.add(user);
     }
 
     @Override

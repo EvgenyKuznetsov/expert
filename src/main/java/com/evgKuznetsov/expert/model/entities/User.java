@@ -1,9 +1,9 @@
 package com.evgKuznetsov.expert.model.entities;
 
 import com.evgKuznetsov.expert.model.AbstractEntity;
-import com.evgKuznetsov.expert.model.validation.constraints.ValidEmail;
-import com.evgKuznetsov.expert.model.validation.constraints.ValidFullName;
-import com.evgKuznetsov.expert.model.validation.constraints.ValidPhoneNumber;
+import com.evgKuznetsov.expert.validation.constraints.ValidEmail;
+import com.evgKuznetsov.expert.validation.constraints.ValidFullName;
+import com.evgKuznetsov.expert.validation.constraints.ValidPhoneNumber;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -97,6 +97,11 @@ public class User extends AbstractEntity {
         if (this.roles.remove(role)) {
             role.getUsers().remove(this);
         }
+    }
+
+    public void clearRoles() {
+        this.roles.forEach(x -> x.removeUser(this));
+        this.roles.clear();
     }
 
     public List<Order> getOrders() {

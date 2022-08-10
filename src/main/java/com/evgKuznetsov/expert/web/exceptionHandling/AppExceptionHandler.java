@@ -24,7 +24,8 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({ConstraintViolationException.class})
     protected ResponseEntity<Object> handleConstraintViolation(ConstraintViolationException ex, WebRequest request) {
         log.warn("{} is incorrect", request.getDescription(false));
-        ProblemInfo info = new ProblemInfo(HttpStatus.BAD_REQUEST, "INCORRECT REQUEST PARAMETERS");
+
+        ProblemInfo info = new ProblemInfo(HttpStatus.BAD_REQUEST);
         for (ConstraintViolation<?> vio : ex.getConstraintViolations()) {
             info.addDetail(vio.getPropertyPath() + " : " + vio.getMessage());
         }
@@ -33,7 +34,9 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler({NoSuchElementException.class})
     protected ResponseEntity<Object> handleNoSuchElement(NoSuchElementException ex, WebRequest request) {
-        ProblemInfo info = new ProblemInfo(HttpStatus.NOT_FOUND, "ENTITY NOT FOUND");
+
+        ProblemInfo info = new ProblemInfo(HttpStatus.NOT_FOUND);
+
         Map<String, String[]> param = request.getParameterMap();
         if (param.isEmpty()) {
             String path = request.getDescription(false);
@@ -43,14 +46,14 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
             log.warn("entity not found for query parameters: {}", param);
             StringBuilder builder = new StringBuilder();
             param.forEach((key, value) -> {
-                builder.append(key + ": ");
+                builder.append(key).append(": ");
                 for (String val : value) {
                     builder.append(val);
                 }
                 info.addDetail(builder.toString());
             });
         }
-        return new ResponseEntity<Object>(info, info.getHttpStatus());
+        return new ResponseEntity<>(info, info.getHttpStatus());
     }
 
     @Override
@@ -60,9 +63,8 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
                                                                   HttpStatus status,
                                                                   WebRequest request) {
         log.warn(ex.getMessage());
-        ProblemInfo info = new ProblemInfo(HttpStatus.UNPROCESSABLE_ENTITY, "INCORRECT REQUEST BODY");
-        ex.getFieldErrors().stream()
-                .forEach(fe -> info.addDetail(fe.getField() + " : " + fe.getDefaultMessage()));
+        ProblemInfo info = new ProblemInfo(HttpStatus.UNPROCESSABLE_ENTITY);
+        ex.getFieldErrors().forEach(fe -> info.addDetail(fe.getField() + " : " + fe.getDefaultMessage()));
 
         return new ResponseEntity<>(info, info.getHttpStatus());
     }
@@ -70,9 +72,7 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({Exception.class})
     protected ResponseEntity<Object> handleAll(Exception ex, WebRequest request) {
         log.warn("{} : doesn't have a handler to handle it", ex.getCause().toString());
-        ProblemInfo info = new ProblemInfo(HttpStatus.INTERNAL_SERVER_ERROR,
-                HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
-                List.of("There are not a handler"));
-        return new ResponseEntity<Object>(info, info.getHttpStatus());
+        ProblemInfo info = new ProblemInfo(HttpStatus.INTERNAL_SERVER_ERROR, List.of("There are not a handler"));
+        return new ResponseEntity<>(info, info.getHttpStatus());
     }
 }

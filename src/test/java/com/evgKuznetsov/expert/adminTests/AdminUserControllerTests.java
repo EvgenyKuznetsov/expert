@@ -3,7 +3,7 @@ package com.evgKuznetsov.expert.adminTests;
 import com.evgKuznetsov.expert.AbstractControllerTest;
 import com.evgKuznetsov.expert.JsonContentMatcher;
 import com.evgKuznetsov.expert.JsonHelper;
-import com.evgKuznetsov.expert.model.dto.UserTransferObject;
+import com.evgKuznetsov.expert.model.dto.UserTo;
 import com.evgKuznetsov.expert.model.entities.User;
 import com.evgKuznetsov.expert.repository.UserRepository;
 import com.evgKuznetsov.expert.web.AdminUserController;
@@ -20,12 +20,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@DisplayName("AdminUserController tests")
+@DisplayName("AdminUserController tests:")
 public class AdminUserControllerTests extends AbstractControllerTest {
 
     private static final String BASE_PATH = AdminUserController.URL + "/";
     private static final String[] ignoredProperties = {"orders", "roles", "password"};
     private static JsonContentMatcher json;
+
     @Autowired
     UserRepository userRepository;
 
@@ -36,7 +37,7 @@ public class AdminUserControllerTests extends AbstractControllerTest {
 
 
     @Test
-    @DisplayName("query of all exists users")
+    @DisplayName("all exists users")
     void getAll() throws Exception {
         perform(get(BASE_PATH + "get_all"))
                 .andExpectAll(
@@ -46,7 +47,7 @@ public class AdminUserControllerTests extends AbstractControllerTest {
     }
 
     @Nested
-    @DisplayName("query of the single user")
+    @DisplayName("the single user")
     class SingleUserQuery {
 
         @Nested
@@ -54,49 +55,136 @@ public class AdminUserControllerTests extends AbstractControllerTest {
         class ByID {
 
             @Test
-            @DisplayName("then id is correct")
+            @DisplayName("id is correct")
             void getById() throws Exception {
 
                 perform(get(BASE_PATH + USER.getId()))
                         .andExpectAll(
                                 status().isOk(),
                                 content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON),
-                                json.matchWith(USER_TO, UserTransferObject.class));
+                                json.matchWith(USER_TO, UserTo.class));
             }
+
+            @Test
+            @DisplayName("there isn't row with this id")
+            void getUserNotExist() throws Exception {
+                String path = BASE_PATH + 100;
+                perform(get(path))
+                        .andExpectAll(
+                                status().isNotFound(),
+                                content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
+            }
+
+            @Test
+            @DisplayName("id is incorrect")
+            void passedIncorrectId() throws Exception {
+                String path = BASE_PATH + "0";
+
+                perform(get(path))
+                        .andExpectAll(
+                                status().isBadRequest(),
+                                content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
+            }
+
         }
 
         @Nested
         @DisplayName("by a phone number")
         class ByPhone {
 
-            @Test
-            @DisplayName("when a phone number is correct")
-            void getByPhone() throws Exception {
-                String query = BASE_PATH + "get_by_phone_number";
+            private final String query = BASE_PATH + "get_by_phone_number";
+            private final String parameter = "phone_number";
 
-                perform(get(query).queryParam("phone_number", USER.getPhoneNumber()))
+            @Test
+            @DisplayName("is correct")
+            void getByPhone() throws Exception {
+
+                perform(get(query).queryParam(parameter, USER.getPhoneNumber()))
                         .andExpectAll(
                                 status().isOk(),
                                 content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON),
                                 json.matchWith(USER, User.class));
+            }
 
+            @Test
+            @DisplayName("incorrect format")
+            void incorrectFormatPhoneNumber() throws Exception {
+                String phone = USER.getPhoneNumber().replace("(", "");
+
+                perform(get(query).queryParam(parameter, phone))
+                        .andExpectAll(
+                                status().isBadRequest(),
+                                content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
+            }
+
+            @Test
+            @DisplayName("not exist")
+            void getUserNotExist() throws Exception {
+
+                perform(get(query).queryParam(parameter, "7(111)111-11-11"))
+                        .andExpectAll(
+                                status().isNotFound(),
+                                content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
             }
         }
 
         @Nested
         @DisplayName("by an email")
         class ByEmail {
+            private final String query = BASE_PATH + "get_by_email";
+            private final String param = "email";
 
             @Test
-            @DisplayName("when an email is correct")
+            @DisplayName("is correct")
             void getByEmail() throws Exception {
-                String query = BASE_PATH + "get_by_email";
 
-                perform(get(query).queryParam("email", USER.getEmail()))
+                perform(get(query).queryParam(param, USER.getEmail()))
                         .andExpectAll(
                                 status().isOk(),
                                 content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON),
                                 json.matchWith(USER, User.class));
+            }
+
+            @Test
+            @DisplayName("format is incorrect")
+            void formatIsIncorrect() throws Exception {
+                String email = USER.getEmail().replace("@", "");
+
+                perform(get(query).queryParam(param, email))
+                        .andExpectAll(
+                                status().isBadRequest(),
+                                content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
+            }
+
+            @Test
+            @DisplayName("too long")
+            void tooLong() throws Exception {
+                String superLongPhone = getSuperLongPhone();
+                perform(get(query).queryParam(param, superLongPhone))
+                        .andExpectAll(
+                                status().isBadRequest(),
+                                content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
+            }
+
+            @Test
+            @DisplayName("not exist")
+            void notExist() throws Exception {
+                perform(get(query).queryParam(param, "never@registered.com"))
+                        .andExpectAll(
+                                status().isNotFound(),
+                                content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
+            }
+
+            @Test
+            @DisplayName("multiple violations")
+            void multipleViolations() throws Exception {
+                String longPhoneWithIncorrectFormat = getSuperLongPhone().replace("@", "");
+
+                perform(get(query).queryParam(param, longPhoneWithIncorrectFormat))
+                        .andExpectAll(
+                                status().isBadRequest(),
+                                content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON),
+                                jsonPath("$.details").isArray());
             }
         }
     }

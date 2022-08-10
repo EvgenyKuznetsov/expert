@@ -1,12 +1,12 @@
 package com.evgKuznetsov.expert.web;
 
-import com.evgKuznetsov.expert.model.dto.UserTransferObject;
+import com.evgKuznetsov.expert.model.dto.UserTo;
 import com.evgKuznetsov.expert.model.entities.User;
-import com.evgKuznetsov.expert.model.validation.constraints.ValidEmail;
-import com.evgKuznetsov.expert.model.validation.constraints.ValidId;
-import com.evgKuznetsov.expert.model.validation.constraints.ValidPhoneNumber;
 import com.evgKuznetsov.expert.repository.RoleRepository;
 import com.evgKuznetsov.expert.repository.UserRepository;
+import com.evgKuznetsov.expert.validation.constraints.ValidEmail;
+import com.evgKuznetsov.expert.validation.constraints.ValidId;
+import com.evgKuznetsov.expert.validation.constraints.ValidPhoneNumber;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -36,8 +36,16 @@ public class AdminUserController {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
 
+    @GetMapping(value = "/get_all")
+    public List<UserTo> getAll() {
+        log.debug("getAll");
+
+        List<User> allUsers = userRepository.findAll();
+        return transformToUTO(allUsers);
+    }
+
     @GetMapping(value = "/{id}")
-    public UserTransferObject getById(@PathVariable @ValidId Long id) {
+    public UserTo getById(@PathVariable @ValidId Long id) {
         log.debug("getById with an id: {}", id);
 
         User requestedUser = userRepository.findById(id).orElseThrow();
@@ -45,31 +53,26 @@ public class AdminUserController {
     }
 
     @GetMapping(value = "/get_by_phone_number")
-    public User getByPhoneNumber(@RequestParam(value = "phone_number") @ValidPhoneNumber String phone) {
+    public UserTo getByPhoneNumber(@RequestParam(value = "phone_number") @ValidPhoneNumber String phone) {
         log.debug("getByPhoneNumber with a phone number: {}", phone);
-        return userRepository.getByPhoneNumber(phone).orElseThrow();
+
+        User requestedUser = userRepository.getByPhoneNumber(phone).orElseThrow();
+        return transformToUTO(requestedUser);
     }
 
     @GetMapping(value = "/get_by_email")
-    public User getByEmail(@RequestParam(value = "email") @ValidEmail String email) {
+    public UserTo getByEmail(@RequestParam(value = "email") @ValidEmail String email) {
         log.debug("getByEmail with an email: {}", email);
 
-        return userRepository.getByEmail(email).orElseThrow();
-    }
-
-    @GetMapping(value = "/get_all")
-    public List<UserTransferObject> getAll() {
-        log.debug("getAll");
-
-        List<User> allUsers = userRepository.findAll();
-        return transformToUTO(allUsers);
+        User requestedUser = userRepository.getByEmail(email).orElseThrow();
+        return transformToUTO(requestedUser);
     }
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Transactional
-    public void updateUser(@RequestBody @Valid UserTransferObject userTo) {
-        log.debug("updateUser with data: {}", userTo.toString());
+    public void updateUser(@RequestBody @Valid UserTo userTo) {
+        log.debug("userTo with data: {}", userTo.toString());
 
         if (verified(userTo)) {
             User original = userRepository.getById(userTo.getId());
@@ -77,7 +80,7 @@ public class AdminUserController {
         }
     }
 
-    private boolean verified(UserTransferObject userTo) {
+    private boolean verified(UserTo userTo) {
         Long userId = userTo.getId();
         if (userId == null) {
             log.debug("verified: User id cannot be null: {}", userId);
@@ -98,7 +101,8 @@ public class AdminUserController {
     public ResponseEntity<User> addNewUser(@RequestBody @Valid User user) {
         log.debug("addNewUser");
         if (!user.isNew()) {
-            throw new IllegalArgumentException("User must be new: [expected: User.id == null, actual: User.id == " + user.getId());
+            throw new IllegalArgumentException("User must be new: [expected: User.id == null, actual: User.id == "
+                    + user.getId() + "]");
         }
         User newOne = userRepository.save(user);
         URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()

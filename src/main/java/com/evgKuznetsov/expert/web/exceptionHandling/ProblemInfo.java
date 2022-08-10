@@ -13,15 +13,13 @@ import java.util.List;
 public class ProblemInfo {
 
     private HttpStatus httpStatus;
-    private String title;
     private List<String> details = new ArrayList<>();
+
+    public ProblemInfo(HttpStatus httpStatus) {
+        this.httpStatus = httpStatus;
+    }
 
     public void addDetail(@NonNull String detail) {
         details.add(detail);
-    }
-
-    public ProblemInfo(HttpStatus httpStatus, String title) {
-        this.httpStatus = httpStatus;
-        this.title = title;
     }
 }
