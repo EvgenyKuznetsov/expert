@@ -12,6 +12,9 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Locale;
+import java.util.stream.Stream;
+
 @SpringBootTest
 @Transactional
 @AutoConfigureMockMvc(print = MockMvcPrint.SYSTEM_OUT, printOnlyOnFailure = false)
@@ -21,15 +24,19 @@ public abstract class AbstractControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    static Stream<Locale> getLocale() {
+        return Stream.of(new Locale("ru", "RU"));
+    }
+
+    protected ResultActions perform(MockHttpServletRequestBuilder builder) throws Exception {
+        return mockMvc.perform(builder);
+    }
+
     @Configuration
     static class ConfigTests {
         @Autowired
         void injectObjectMapper(ObjectMapper objectMapper) {
             JsonHelper.setObjectMapper(objectMapper);
         }
-    }
-
-    protected ResultActions perform(MockHttpServletRequestBuilder builder) throws Exception {
-        return mockMvc.perform(builder);
     }
 }

@@ -11,17 +11,13 @@ import javax.persistence.*;
 @Access(AccessType.FIELD)
 @Getter
 @Setter
-public abstract class AbstractEntity implements Persistable<Long> {
+public abstract class AbstractEntity implements Persistable<Long>, IdAuditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequence_generator")
-    @SequenceGenerator(name = "sequence_generator", sequenceName = "global_seq", allocationSize = 1, initialValue = 100)
+    @SequenceGenerator(name = "sequence_generator", sequenceName = "global_seq", allocationSize = 1, initialValue = 110)
     @Column(name = "id")
     private Long id;
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     @Override
     public boolean isNew() {

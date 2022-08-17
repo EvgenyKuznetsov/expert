@@ -57,4 +57,11 @@ public class Role extends AbstractEntity {
     public int hashCode() {
         return role.hashCode();
     }
+
+
+    @Override
+    public String toString() {
+        return "[id: " + this.getId() +
+                "role: " + this.role + "]";
+    }
 }

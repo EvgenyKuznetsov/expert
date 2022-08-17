@@ -7,6 +7,7 @@ import lombok.experimental.UtilityClass;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @UtilityClass
@@ -35,12 +36,12 @@ public class DataTransferObjectFactory {
         original.setPhoneNumber(corrected.getPhoneNumber());
         original.setActive(corrected.isActive());
 
-        if (corrected.getRoles().isEmpty()) {
-            original.clearRoles();
+        original.clearRoles();
+        Set<Role> roles = corrected.getRoles();
+        if (roles.isEmpty()) {
+            return original;
         }
-
-        for (Role r : corrected.getRoles()) {
-            original.clearRoles();
+        for (Role r : roles) {
             original.addRole(r);
         }
         return original;

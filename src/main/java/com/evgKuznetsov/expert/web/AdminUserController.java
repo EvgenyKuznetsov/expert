@@ -1,25 +1,28 @@
 package com.evgKuznetsov.expert.web;
 
+import com.evgKuznetsov.expert.exception.IllegalRequestDataException;
 import com.evgKuznetsov.expert.model.dto.UserTo;
+import com.evgKuznetsov.expert.model.entities.Role;
 import com.evgKuznetsov.expert.model.entities.User;
 import com.evgKuznetsov.expert.repository.RoleRepository;
 import com.evgKuznetsov.expert.repository.UserRepository;
-import com.evgKuznetsov.expert.validation.constraints.ValidEmail;
 import com.evgKuznetsov.expert.validation.constraints.ValidId;
-import com.evgKuznetsov.expert.validation.constraints.ValidPhoneNumber;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.net.URI;
-import java.util.List;
+import java.util.*;
 
 import static com.evgKuznetsov.expert.utils.DataTransferObjectFactory.mergeEntity;
 import static com.evgKuznetsov.expert.utils.DataTransferObjectFactory.transformToUTO;
@@ -35,10 +38,11 @@ public class AdminUserController {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final MessageSource messageSource;
 
     @GetMapping(value = "/get_all")
     public List<UserTo> getAll() {
-        log.debug("getAll");
+        log.debug("getAll:");
 
         List<User> allUsers = userRepository.findAll();
         return transformToUTO(allUsers);
@@ -46,74 +50,73 @@ public class AdminUserController {
 
     @GetMapping(value = "/{id}")
     public UserTo getById(@PathVariable @ValidId Long id) {
-        log.debug("getById with an id: {}", id);
-
-        User requestedUser = userRepository.findById(id).orElseThrow();
-        return transformToUTO(requestedUser);
+        log.debug("getById with the id: {}", id);
+        return transformToUTO(userRepository.getById(id));
     }
 
-    @GetMapping(value = "/get_by_phone_number")
-    public UserTo getByPhoneNumber(@RequestParam(value = "phone_number") @ValidPhoneNumber String phone) {
-        log.debug("getByPhoneNumber with a phone number: {}", phone);
-
-        User requestedUser = userRepository.getByPhoneNumber(phone).orElseThrow();
-        return transformToUTO(requestedUser);
-    }
-
-    @GetMapping(value = "/get_by_email")
-    public UserTo getByEmail(@RequestParam(value = "email") @ValidEmail String email) {
-        log.debug("getByEmail with an email: {}", email);
-
-        User requestedUser = userRepository.getByEmail(email).orElseThrow();
-        return transformToUTO(requestedUser);
-    }
-
-    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Transactional
-    public void updateUser(@RequestBody @Valid UserTo userTo) {
-        log.debug("userTo with data: {}", userTo.toString());
+    public void updateUser(@PathVariable @ValidId Long id, @RequestBody @Valid UserTo userTo, WebRequest request) {
+        log.debug("updateUser with the id: {}, body: {}", id, userTo.toString());
+        Locale loc = request.getLocale();
 
-        if (verified(userTo)) {
-            User original = userRepository.getById(userTo.getId());
-            userRepository.save(mergeEntity(original, userTo));
-        }
+        User user = userRepository.getById(id);
+        checkUserTo(id, userTo, loc);
+
+        userRepository.save(mergeEntity(user, userTo));
     }
 
-    private boolean verified(UserTo userTo) {
-        Long userId = userTo.getId();
-        if (userId == null) {
-            log.debug("verified: User id cannot be null: {}", userId);
-            return false;
+    private void checkUserTo(Long id, UserTo userTo, Locale loc) {
+        log.debug("AdminUserController.checkUserTo");
+        if (!Objects.equals(id, userTo.getId())) {
+            String m = messageSource.getMessage("validation.data.conflict", null, loc);
+            throw new IllegalRequestDataException(String.format(m, "user.id"));
         }
-        return userTo.getRoles().stream()
-                .allMatch(role -> {
-                    Long roleId = role.getId();
-                    if (roleId == null) {
-                        log.debug("verified: Role id cannot be null: {}", roleId);
-                        return false;
-                    }
-                    return roleRepository.existsById(roleId);
-                });
+        checkRoles(userTo.getRoles(), loc);
     }
 
     @PostMapping(value = "/new", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<User> addNewUser(@RequestBody @Valid User user) {
-        log.debug("addNewUser");
+    public ResponseEntity<UserTo> addNewUser(@RequestBody @Valid User user, WebRequest request) {
+        log.debug("addNewUser: {}", user);
+        Locale loc = request.getLocale();
+
         if (!user.isNew()) {
-            throw new IllegalArgumentException("User must be new: [expected: User.id == null, actual: User.id == "
-                    + user.getId() + "]");
+            String m = messageSource.getMessage("validation.data.conflict", null, loc);
+            throw new IllegalRequestDataException(String.format(m, "user.id"));
         }
-        User newOne = userRepository.save(user);
+
+        checkRoles(user.getRoles(), loc);
+
+        UserTo newOne = transformToUTO(userRepository.save(user));
         URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path(URL + "/{id}")
                 .buildAndExpand(newOne.getId()).toUri();
         return ResponseEntity.created(uriOfNewResource).body(newOne);
     }
 
+    private void checkRoles(Set<Role> roles, Locale loc) {
+        log.debug("AdminUserController.checkRoles");
+        for (Role rPassed : roles) {
+            Assert.notNull(rPassed.getId(), "Role's id must be not null!");
+            Optional<Role> op = roleRepository.findById(rPassed.getId());
+            if (op.isEmpty()) {
+                String m = messageSource.getMessage("validation.data.conflict", null, loc);
+                throw new IllegalRequestDataException(String.format(m, "user.role"));
+            }
+            Role rExist = op.get();
+            String rExistName = rExist.getRole(), rPassedName = rPassed.getRole();
+            if (!Objects.equals(rExistName, rPassedName)) {
+                String m = messageSource.getMessage("validation.data.conflict", null, loc);
+                throw new IllegalRequestDataException(String.format(m, "user.role"));
+            }
+        }
+    }
+
     @DeleteMapping(value = "/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public void deleteUser(@PathVariable @ValidId Long id) {
-        log.debug("deleteUser with an id: {}", id);
+        log.debug("deleteUser with the id: {}", id);
         if (userRepository.existsById(id)) {
             userRepository.deleteById(id);
         }

@@ -11,8 +11,8 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-@NotNull(message = "{not_null}")
-@Positive(message = "{positive}")
+@NotNull(message = "{validation.data.not-null}")
+@Positive(message = "{validation.data.positive}")
 @Constraint(validatedBy = {})
 @Target({CONSTRUCTOR, FIELD, METHOD, PARAMETER})
 @Retention(RUNTIME)

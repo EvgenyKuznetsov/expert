@@ -13,9 +13,7 @@ import org.hibernate.validator.constraints.Length;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
-import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.*;
 
 @Entity(name = "user")
@@ -34,8 +32,8 @@ public class User extends AbstractEntity {
     private String email;
 
     @Column(name = "password")
-    @NotBlank
-    @Length(min = 5, max = 255)
+    @NotBlank(message = "{validation.data.not-blank}")
+    @Length(min = 5, max = 100, message = "{validation.data.length}")
     private String password;
 
     @Column(name = "phone_number", unique = true)
@@ -43,7 +41,6 @@ public class User extends AbstractEntity {
     private String phoneNumber;
 
     @Column(name = "active", columnDefinition = "boolean default true")
-    @NotNull
     private boolean active;
 
     @Getter(AccessLevel.NONE)
@@ -54,7 +51,6 @@ public class User extends AbstractEntity {
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
     )
-    @Valid
     private Set<Role> roles = new HashSet<>();
 
     @Getter(AccessLevel.NONE)

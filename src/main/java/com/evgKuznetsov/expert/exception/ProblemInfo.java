@@ -1,10 +1,10 @@
-package com.evgKuznetsov.expert.web.exceptionHandling;
+package com.evgKuznetsov.expert.exception;
 
 import lombok.*;
 import org.springframework.http.HttpStatus;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,7 +13,7 @@ import java.util.List;
 public class ProblemInfo {
 
     private HttpStatus httpStatus;
-    private List<String> details = new ArrayList<>();
+    private Set<String> details = new HashSet<>();
 
     public ProblemInfo(HttpStatus httpStatus) {
         this.httpStatus = httpStatus;
